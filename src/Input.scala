@@ -1,4 +1,4 @@
-package input
+package aoc.input
 
 import scala.io.Source
 
@@ -8,6 +8,9 @@ def readFile(name: String): Seq[String] = {
   f.close
   lines
 }
+
+def readInts(path: String): Seq[Array[Int]] =
+  readFile(path).map(_.split("\\s+").map(_.toInt))
 
 def parseTwoInts(lines: Seq[String]): (Seq[Int], Seq[Int]) = {
   val pairs = lines.map(_.split("\\s+"))

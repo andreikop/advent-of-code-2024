@@ -1,6 +1,7 @@
 package day01
 
-import input._
+import aoc.input._
+import aoc.print._
 
 object Main {
   def main(args: Array[String]) = {

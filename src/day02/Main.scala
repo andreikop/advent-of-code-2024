@@ -1,6 +1,7 @@
 package day02
 
-import input._
+import aoc.input._
+import aoc.print._
 
 object Main {
   def isSafeP1(s: Array[Int]): Boolean = {
@@ -53,18 +54,17 @@ object Main {
   }
 
   def solve(fileName: String, f: Array[Int] => Boolean): Int = {
-    val lines = readFile("src/day02/" + fileName)
-    val arrs = lines.map(_.split("\\s+").map(_.toInt))
+    val arrs = readInts("src/day02/" + fileName)
 
     arrs.count(f)
   }
 
   def main(args: Array[String]) = {
-    println(s"part 1 short ${solve("input-short.txt", isSafeP1)}")
-    println(s"part 1 long ${solve("input-long.txt", isSafeP1)}")
+    printLine(s"part 1 short ${solve("input-short.txt", isSafeP1)}")
+    printLine(s"part 1 long ${solve("input-long.txt", isSafeP1)}")
 
-    println(s"part 2 short ${solve("input-short.txt", isSafeP2)}")
-    println(s"part 2 long ${solve("input-long.txt", isSafeP2)}")
+    printLine(s"part 2 short ${solve("input-short.txt", isSafeP2)}")
+    printLine(s"part 2 long ${solve("input-long.txt", isSafeP2)}")
   }
 
 }
