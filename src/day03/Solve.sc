@@ -35,13 +35,6 @@ val re2 = "(mul\\((\\d+),(\\d+)\\)|do\\(\\)|don't\\(\\))".r
 
 val matches2 = linesLong.map(s => re2.findAllMatchIn(s)).toList.flatten
 
-for (m <- matches2)
-  printLine(m.subgroups)
-
-val g0 = matches2.map(m => m.group(0))
-val g1 = matches2.map(m => m.group(1))
-val g2 = matches2.map(m => m.group(2))
-
 val ops2 = matches2
   .map(m =>
     m.group(0).substring(0, 3) match {
