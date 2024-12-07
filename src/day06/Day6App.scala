@@ -7,8 +7,8 @@ def readFile(name: String): Seq[String] = {
   lines
 }
 
+import scala.annotation.tailrec
 import scala.collection.immutable.AbstractSeq
-
 import scala.io.Source
 
 def printLine(vals: Any*) = {
@@ -41,7 +41,8 @@ object Day6App {
     val X = 'X'
     val Empty = '.'
     val Block = '#'
-    val Obstacle = 'O'
+    val Obstacle = 'o'
+    val FoundObstacle = 'O'
 
     case class Pos(x: Int, y: Int)
 
@@ -78,9 +79,11 @@ object Day6App {
       def turn = Guard(pos, nextDir)
     }
 
-    case class Field(arr: Array[Array[Char]], visited: List[Guard]) {
-      assert(visited.length <= 10000)
-      val g = visited.last
+    case class Field(
+        arr: Array[Array[Char]],
+        visitedSet: Set[Guard],
+        g: Guard
+    ) {
       val xSize = arr.length
       val ySize = arr(0).length
 
@@ -90,7 +93,7 @@ object Day6App {
 
       def print = {
         val resArr = arr.map(_.clone)
-        for (g <- visited)
+        for (g <- visitedSet)
           if (resArr(g.pos.x)(g.pos.y) != Obstacle)
             resArr(g.pos.x)(g.pos.y) = g.dirLetter
 
@@ -111,35 +114,73 @@ object Day6App {
         println()
       }
 
-      def step: Field = {
-        val nextG = at(g.nextPos) match {
-          case Empty            => g.move
-          case Block | Obstacle => g.turn
-        }
-
-        val f = Field(arr, visited :+ nextG)
-        f
+      def nextGuard(g: Guard): Guard = at(g.nextPos) match {
+        case Empty | FoundObstacle => g.move
+        case Block | Obstacle      => g.turn
       }
 
-      def done: Boolean =
-        g.nextPos.x < 0 || g.nextPos.x >= xSize || g.nextPos.y < 0 | g.nextPos.y >= ySize
+      def done(gToCheck: Guard): Boolean = {
+        val p = gToCheck.nextPos
+        p.x < 0 || p.x >= xSize || p.y < 0 | p.y >= ySize
+      }
 
-      def res = visited.map(_.pos).toSet.size
+      def res = visitedSet.map(_.pos).size
 
-      def res2 = arr.flatten.count(_ == Obstacle)
+      def res2 = arr.flatten.count(_ == FoundObstacle)
 
-      def foundLoop = visited.count(_ == g) > 1
+      def foundLoop = visitedSet.contains(g)
 
-      def solveUntilEnd: Field = {
-        if (foundLoop) {
+      def solveUntilEnd: Field = solveUntilEndReq(visitedSet, g)
+
+      @tailrec
+      private def solveUntilEndReq(visitedSet: Set[Guard], g: Guard): Field = {
+        // print
+        if (visitedSet.contains(g)) {
           // print
-          this
-        } else if (done) this
+          Field(arr, visitedSet, g)
+        } else if (done(g)) Field(arr, visitedSet, g)
         else
           // println("\u001b[2J")
           // print
           // Thread.sleep(200)
-          this.step.solveUntilEnd
+          solveUntilEndReq(visitedSet.incl(g), nextGuard(g))
+      }
+
+      def solveUntilEndPart2: Field = solveUntilEndPart2Req(visitedSet, g)
+
+      @tailrec
+      private def solveUntilEndPart2Req(
+          visitedSet: Set[Guard],
+          g: Guard
+      ): Field = {
+        if (visitedSet.contains(g)) { // found loop
+          // print
+          this
+        } else if (done(g)) this
+        else {
+          // println("\u001b[2J")
+          // print
+          // Thread.sleep(200)
+          val nextG = nextGuard(g)
+          if (
+            nextG.pos != g.pos &&
+            at(nextG.pos) == Empty &&
+            !visitedSet.map(_.pos).contains(nextG.pos)
+          ) {
+            // printLine("~ checking pos", g.pos)
+            set(nextG.pos, Obstacle)
+            val solved = solveUntilEnd
+            if (solved.foundLoop) {
+              // obstacles = obstacles.incl(nextG.pos)
+              // printLine(">> found loop at", g.pos)
+              // f.print
+              set(nextG.pos, FoundObstacle)
+            } else {
+              set(nextG.pos, Empty)
+            }
+          }
+          solveUntilEndPart2Req(visitedSet.incl(g), nextG)
+        }
       }
 
       def set(pos: Pos, ch: Char) = arr(pos.x)(pos.y) = ch
@@ -166,7 +207,7 @@ object Day6App {
           }
         }
       }
-      Field(arr, List(g))
+      Field(arr, Set(), g)
     }
 
     val origF = makeField(lines)
@@ -179,32 +220,6 @@ object Day6App {
     printLine("result 1", res1)
     // f.print
 
-    var obstacles = Set[Pos]()
-
-    val visited = f.visited.toArray
-    for (visitedIndex <- 0 until (visited.length - 1)) {
-      val guard = visited(visitedIndex)
-      val nextGuard = visited(visitedIndex + 1)
-      if (guard.pos != nextGuard.pos) { // only if going to move
-        printLine("~ checking index", visitedIndex, "of", visited.length)
-        val newVisited = visited.slice(0, visitedIndex + 1)
-        if (!newVisited.map(_.pos).contains(nextGuard.pos)) {
-          f.set(nextGuard.pos, Obstacle)
-          val newField = Field(f.arr, newVisited.toList)
-          val solved = newField.solveUntilEnd
-          if (solved.foundLoop) {
-            obstacles = obstacles.incl(nextGuard.pos)
-            printLine(">> found loop at", guard.pos)
-            // f.print
-          }
-
-          f.set(nextGuard.pos, Empty)
-        }
-      }
-    }
-
-    println("~~~~~ final result")
-    printLine(obstacles.size)
-
+    printLine("result 2", origF.solveUntilEndPart2.res2)
   }
 }
