@@ -4,7 +4,7 @@ import aoc.print.*
 val path = "/Users/ak/code/aoc-2024/aoc-2024/src/day06/"
 
 val lines = readFile(
-  path + "input-short.txt"
+  path + "input-long.txt"
 )
 
 val L = '⇠'
@@ -14,6 +14,7 @@ val D = '⇣'
 val X = 'X'
 val Empty = '.'
 val Block = '#'
+val Obstacle = 'O'
 
 case class Pos(x: Int, y: Int)
 
@@ -49,41 +50,68 @@ case class Guard(pos: Pos, dir: Char) {
   def turn = Guard(pos, nextDir)
 }
 
-case class Field(arr: Array[Array[Char]], var g: Guard) {
+case class Field(arr: Array[Array[Char]], visited: List[Guard]) {
+  assert(visited.length <= 10000)
+  val g = visited.last
   val xSize = arr.length
   val ySize = arr(0).length
 
   def at(x: Int, y: Int) = arr(x)(y)
   def at(p: Pos) = arr(p.x)(p.y)
 
-  def set(pos: Pos, ch: Char) = arr(pos.x)(pos.y) = ch
-
   def print = {
+    val resArr = arr.map(_.clone)
+    for (g <- visited)
+      if (resArr(g.pos.x)(g.pos.y) != Obstacle)
+        resArr(g.pos.x)(g.pos.y) = g.dirLetter
+
     println("-" * (xSize + 2))
     for (yIndex <- (ySize - 1) to 0 by -1) {
       val line =
         for xIndex <- 0 until xSize
-        yield if (Pos(xIndex, yIndex) != g.pos) arr(xIndex)(yIndex) else g.dir
+        yield {
+          val pos = Pos(xIndex, yIndex)
+          if (pos == g.pos)
+            g.dir
+          else
+            resArr(pos.x)(pos.y)
+        }
       println("|" + line.mkString + "|")
     }
     println("-" * (xSize + 2))
     println()
   }
 
-  def step = {
-    at(g.nextPos) match {
-      case Empty | X | L | R | U | D => g = g.move
-      case Block                     => g = g.turn
+  def step: Field = {
+    val nextG = at(g.nextPos) match {
+      case Empty            => g.move
+      case Block | Obstacle => g.turn
     }
-    set(g.pos, g.dirLetter)
+
+    val f = Field(arr, visited :+ nextG)
+    f
   }
 
   def done: Boolean =
     g.nextPos.x < 0 || g.nextPos.x >= xSize || g.nextPos.y < 0 | g.nextPos.y >= ySize
 
-  def res = arr.flatten.count(Array(L, R, U, D).contains(_))
+  def res = visited.map(_.pos).toSet.size
 
-  set(g.pos, g.dirLetter)
+  def res2 = arr.flatten.count(_ == Obstacle)
+
+  def foundLoop = visited.count(_ == g) > 1
+
+  def solveUntilEnd: Field = {
+    if (foundLoop) {
+      // print
+      this
+    } else if (done)
+      this
+    else
+      this.step.solveUntilEnd
+  }
+
+  def set(pos: Pos, ch: Char) = arr(pos.x)(pos.y) = ch
 }
 
 def makeField(lines: Seq[String]): Field = {
@@ -107,20 +135,37 @@ def makeField(lines: Seq[String]): Field = {
       }
     }
   }
-  Field(arr, g)
+  Field(arr, List(g))
 }
-val f = makeField(lines)
+val origF = makeField(lines)
 
-f.print
-while (!f.done) {
-  f.step
-  f.print
-}
+origF.print
+
+val f = origF.solveUntilEnd
 
 val res1 = f.res
+//f.print
 
-//while (!f.done) {
-//  val fClone = f.clone
-//  f.step
-//  // f.print
-//}
+var obstacles = List[Pos]()
+
+val visited = f.visited.toArray
+for (visitedIndex <- 0 until (visited.length - 1)) {
+  println("~ iter")
+  val guard = visited(visitedIndex)
+  val nextGuard = visited(visitedIndex + 1)
+  if (guard.pos != nextGuard.pos) { // only if going to move
+    printLine("~ checking index", visitedIndex, "of", visited.length)
+    f.set(nextGuard.pos, Obstacle)
+    val newField = Field(f.arr, visited.slice(0, visitedIndex + 1).toList)
+    val solved = newField.solveUntilEnd
+//    if (solved.foundLoop) {
+//      obstacles = obstacles.appended(guard.pos)
+//      // printLine(">> found loop at", guard.pos)
+//    }
+
+    f.set(guard.pos, Empty)
+  }
+}
+
+println("~~~~~ final result")
+obstacles.length
