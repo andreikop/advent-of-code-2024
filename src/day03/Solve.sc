@@ -54,3 +54,6 @@ for (op <- ops2)
   }
 
 printLine("res2", acc)
+ops2.length
+
+val regex = "don't().*?(do()|$)|mul((d{1,3}),(d{1,3}))".toRegex()
