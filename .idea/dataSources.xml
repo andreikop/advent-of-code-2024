@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Zeppelin Dev" read-only="true" uuid="b0de4f6b-8d73-4cb7-aa2e-8a259cbbfcf5">
+    <data-source source="LOCAL" name="Zeppelin Dev" read-only="true" uuid="5acb786e-608f-4f8a-aafe-ec1882de8437">
       <synchronize>true</synchronize>
       <remarks>Wrapper For Zeppelin Spark from Big Data Tools plugin</remarks>
       <jdbc-driver>com.dbschema.ZeppelinSparkJdbcDriver</jdbc-driver>
@@ -12,7 +12,7 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="Zeppelin Local Compose" read-only="true" uuid="e68cdb8a-5100-4f31-9b35-90d40b43b35f">
+    <data-source source="LOCAL" name="Zeppelin Local Compose" read-only="true" uuid="03406a7e-b287-4f6b-9e49-c6c73fa0340a">
       <synchronize>true</synchronize>
       <remarks>Wrapper For Zeppelin Spark from Big Data Tools plugin</remarks>
       <jdbc-driver>com.dbschema.ZeppelinSparkJdbcDriver</jdbc-driver>
@@ -23,7 +23,7 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="Zeppelin Compose" read-only="true" uuid="46a82dbd-b510-4933-ac7f-0b534dca97a6">
+    <data-source source="LOCAL" name="Zeppelin Compose" read-only="true" uuid="e1dbb015-463f-4069-8de9-b068720591f3">
       <synchronize>true</synchronize>
       <remarks>Wrapper For Zeppelin Spark from Big Data Tools plugin</remarks>
       <jdbc-driver>com.dbschema.ZeppelinSparkJdbcDriver</jdbc-driver>

@@ -12,6 +12,10 @@ def readFile(name: String): Seq[String] = {
 def readInts(path: String): Seq[Array[Int]] =
   readFile(path).map(_.split("\\s+").map(_.toInt))
 
+
+def readIntsWoSpaces(path: String): Seq[Array[Int]] =
+    readFile(path).map(line => line.toCharArray.map(ch => ch.toString.toInt))
+
 def parseTwoInts(lines: Seq[String]): (Seq[Int], Seq[Int]) = {
   val pairs = lines.map(_.split("\\s+"))
   val a = pairs.map(_.apply(0).toInt)
