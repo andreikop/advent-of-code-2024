@@ -1,4 +1,4 @@
-package aoc.print
+package aoc
 
 import scala.collection.immutable.AbstractSeq
 
